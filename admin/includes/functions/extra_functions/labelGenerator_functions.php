@@ -47,6 +47,7 @@ function printLabel($adressBookID){
   $address = null;
   $country = null;
   $filename = null;
+  $file = null;
   $zpl = array();
   
   $sql = 'SELECT address_book_id, customers_id, entry_gender, entry_company, entry_firstname, entry_lastname, entry_street_address, entry_suburb, entry_postcode, entry_city, entry_state, entry_country_id, entry_zone_id FROM '
@@ -94,11 +95,19 @@ function printLabel($adressBookID){
   
   
   //TODO: write to file
+  $filename = LABEL_PRINT_FOLDER . $adressBookID . '.zpl';
   
-  for($i=0;$i<sizeof($zpl);$i++){
-  	echo $zpl[$i] . '<br />';
+  if($file = fopen($filename, 'x+')){
+  	for($i=0;$i<sizeof($zpl);$i++){
+  		//echo $zpl[$i] . '<br />';
+  		fwrite($file, $zpl[$i] . "\n");
+  	}
+  	fclose($file);
+  	$messageStack->add(LABEL_PRINTED_MESSAGE . $adressBookID, 'success');
+  	
+  }else{
+  	$messageStack->add(LABEL_NOT_PRINTED_MESSAGE . ' ' . $adressBookID, 'warning');
   }
-  
-  $messageStack->add(LABEL_PRINTED_MESSAGE . $adressBookID, 'success');
+
 }
 ?>
