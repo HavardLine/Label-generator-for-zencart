@@ -49,6 +49,8 @@ function printLabel($adressBookID){
   $filename = null;
   $file = null;
   $zpl = array();
+  $separator1 = '';
+  $separator2 = '';
   
   $sql = 'SELECT address_book_id, customers_id, entry_gender, entry_company, entry_firstname, entry_lastname, entry_street_address, entry_suburb, entry_postcode, entry_city, entry_state, entry_country_id, entry_zone_id FROM '
     . DB_DATABASE . '.' . TABLE_ADDRESS_BOOK . ' WHERE address_book_id = ' . $adressBookID;
@@ -58,39 +60,68 @@ function printLabel($adressBookID){
   $sql = 'SELECT * FROM ' . DB_DATABASE . '.' . TABLE_COUNTRIES . ' WHERE countries_id = "' . $address['entry_country_id'] . '"';
   $result = $db->Execute($sql);
   $country = $result->fields['countries_name'];
+  
+  if($address['entry_company'] != ''){
+  	$separator1 = ', ';
+  }
+  if ($address['entry_suburb'] != ''){
+  	$separator2 = ', ';
+  }
  
   //configure layout
   array_push($zpl, '^XA');
   array_push($zpl, '^DFR:SAMPLE.GRF^FS');
-  array_push($zpl, '^FO20,30^GB750,1100,4^FS');
-  array_push($zpl, '^FO20,30^GB750,200,4^FS');
-  array_push($zpl, '^FO20,30^GB750,400,4^FS');
-  array_push($zpl, '^FO20,30^GB750,700,4^FS');
-  array_push($zpl, '^FO20,226^GB325,204,4^FS');
-  array_push($zpl, '^FO30,40^ADN,36,20^FDShip to:^FS');
-  array_push($zpl, '^FO30,260^ADN,18,10^FDPart number #^FS');
-  array_push($zpl, '^FO360,260^ADN,18,10^FDDescription:^FS');
-  array_push($zpl, '^FO30,750^ADN,36,20^FDFrom:^FS');
-  array_push($zpl, '^FO150,125^ADN,36,20^FN1^FS (ship to)');
-  array_push($zpl, '^FO60,330^ADN,36,20^FN2^FS(part num)');
-  array_push($zpl, '^FO400,330^ADN,36,20^FN3^FS(description)');
-  array_push($zpl, '^FO70,480^BY4^B3N,,200^FN4^FS(barcode)');
-  array_push($zpl, '^FO150,800^ADN,36,20^FN5^FS (from)');
+  array_push($zpl, '^FO50,50^GB750,400,4,B^FS');
+  
+  array_push($zpl, '^FO150,75^ADN,18,10^FN1^FS (Receiver label)');
+  array_push($zpl, '^FO150,125^ADN,36,20^FN2^FS (Name)');
+  array_push($zpl, '^FO150,175^ADN,36,20^FN3^FS (Address)');
+  array_push($zpl, '^FO150,225^ADN,36,20^FN4^FS (Zip, city)');
+  array_push($zpl, '^FO150,275^ADN,36,20^FN5^FS (Country)');
+  
+  
+  array_push($zpl, '^FO50,50^GB750,800,4,B,^FS');
+  array_push($zpl, '^FO50,450^GD750,400,4,,R^FS');
+  array_push($zpl, '^FO50,450^GD750,400,4,,L^FS');
+  array_push($zpl, '^FO150,475^ADN,18,10^FN11^FS (Sender label)');
+  array_push($zpl, '^FO150,525^ADN,36,20^FN12^FS (Name)');
+  array_push($zpl, '^FO150,575^ADN,36,20^FN13^FS (Address)');
+  array_push($zpl, '^FO150,625^ADN,36,20^FN14^FS (Zip, city)');
+  array_push($zpl, '^FO150,675^ADN,36,20^FN15^FS (Country)');
+  
+  array_push($zpl, '^FO225,950^GC400,10,^FS');
+  array_push($zpl, '^FO350,1050^GC20,30,^FS');
+  array_push($zpl, '^FO500,1050^GC20,30,^FS');
+  array_push($zpl, '^FO325,1200^GD50,50,10,B,L^FS');
+  array_push($zpl, '^FO380,1245^GB100,0,5,B,^FS');
+  array_push($zpl, '^FO475,1200^GD50,50,10,B,R^FS');
   array_push($zpl, '^XZ');
+  
+  
   //put in data
   array_push($zpl, '^XA');
-  array_push($zpl, '^XFR:Sfunction printLabel(){
-	
-}AMPLE.GRF');
-  array_push($zpl, '^FN1^FD' .
-    $address['entry_company'] . ' ' . 
+  array_push($zpl, '^XFR:SAMPLE.GRF');
+  array_push($zpl, '^FN1^FD' . LABEL_FN1 . '^FS'); 
+  array_push($zpl, '^FN2^FD' .
+    $address['entry_company'] .
+    $separator1 . 
     $address['entry_firstname'] . ' ' . 
     $address['entry_lastname'] . '^FS');
-  array_push($zpl, '^FN2^FD14042^FS');
-  array_push($zpl, '^FN3^FDScrew^FS');
-  array_push($zpl, '^FN4^FD12345678^FS');
-  array_push($zpl, '^FN5^FDMacks Fabricating^FS');
+  array_push($zpl, '^FN3^FD' . $address['entry_street_address'] .
+  	$separator2 .
+  	$address['entry_suburb'] . '^FS');
+  array_push($zpl, '^FN4^FD' . $address['entry_postcode'] . ' ' . $address['entry_city'] . '^FS');
+  array_push($zpl, '^FN5^FD' . $country . '^FS');
+  array_push($zpl, '^FN11^FD' . LABEL_FN11 . '^FS');
+  array_push($zpl, '^FN12^FD' . LABEL_FN12 . '^FS');
+  array_push($zpl, '^FN13^FD' . LABEL_FN13 . '^FS');
+  array_push($zpl, '^FN14^FD' . LABEL_FN14 . '^FS');
+  array_push($zpl, '^FN15^FD' . LABEL_FN15 . '^FS');
+  
   array_push($zpl, '^XZ');
+  
+
+  
   
   
   
