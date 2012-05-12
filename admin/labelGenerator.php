@@ -24,7 +24,7 @@
 //
 
 //start of init
-require_once ('includes/application_top.php');
+require('includes/application_top.php');
 @set_time_limit(300); // if possible, let's try for 5 minutes before timeouts
 
 $version = '0.1';
